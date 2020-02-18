@@ -5,13 +5,14 @@
 //  Created by Herve Desrosiers on 2020-02-17.
 //  Copyright © 2020 Herve Desrosiers. All rights reserved.
 //
+// https://stackoverflow.com/questions/34565570/conforming-to-uitableviewdelegate-and-uitableviewdatasource-in-swift
 
 import UIKit
 
 class ViewController: UITableViewController {
     
     var allWords = [String]()
-    var usedWords = [String]()
+    var usedWords = [String]() // 1. define an array containing the data to display in tableView
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,15 +67,29 @@ class ViewController: UITableViewController {
     }
     
     func isPossible(word: String) -> Bool {
+        guard var tempWord = title?.lowercased() else { return false }
+
+        for letter in word {
+            if let position = tempWord.firstIndex(of: letter) {
+                tempWord.remove(at: position)
+            } else {
+                return false
+            }
+        }
+
         return true
     }
 
     func isOriginal(word: String) -> Bool {
-        return true
+        return !usedWords.contains(word)
     }
 
     func isReal(word: String) -> Bool {
-        return true
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: word.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+
+        return misspelledRange.location == NSNotFound
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
